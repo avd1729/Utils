@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Sales Data</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .chart {
+            width: 600px;
+            margin: 50px auto;
+        }
+
+        .bar {
+            fill: steelblue;
+        }
+
+        .bar:hover {
+            fill: orange;
+        }
+
+        .bar-label {
+            font-size: 14px;
+            fill: white;
+            text-anchor: middle;
+        }
+
+        .chart-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .axis-label {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart">
+        <h2 class="chart-title">Monthly Sales Data</h2>
+        <svg id="bar-chart"></svg>
+    </div>
+
+    <script>
+        // Data for the bar chart
+        const data = [
+            { month: "January", sales: 100 },
+            { month: "February", sales: 200 },
+            { month: "March", sales: 350 },
+            { month: "April", sales: 280 },
+            { month: "May", sales: 400 }
+        ];
+
+        // Set up SVG dimensions
+        const svgWidth = 600;
+        const svgHeight = 400;
+        const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+        const chartWidth = svgWidth - margin.left - margin.right;
+        const chartHeight = svgHeight - margin.top - margin.bottom;
+
+        // Create SVG element
+        const svg = d3.select('#bar-chart')
+            .attr('width', svgWidth)
+            .attr('height', svgHeight);
+
+        // Create scales
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.month))
+            .range([margin.left, chartWidth + margin.left])
+            .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.sales)])
+            .range([chartHeight + margin.top, margin.top]);
+
+        // Create bars
+        svg.selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.month))
+            .attr('y', d => yScale(d.sales))
+            .attr('width', xScale.bandwidth())
+            .attr('height', d => chartHeight + margin.top - yScale(d.sales));
+
+        // Add bar labels
+        svg.selectAll('.bar-label')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('class', 'bar-label')
+            .text(d => d.sales)
+            .attr('x', d => xScale(d.month) + xScale.bandwidth() / 2)
+            .attr('y', d => yScale(d.sales) - 5);
+
+        // Add x-axis
+        svg.append('g')
+            .attr('transform', `translate(0,${chartHeight + margin.top})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll('text')
+            .attr('class', 'axis-label')
+            .style('text-anchor', 'end')
+            .attr('transform', 'rotate(-45)');
+
+        // Add y-axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yScale))
+            .selectAll('text')
+            .attr('class', 'axis-label');
+
+        // Add y-axis label
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 0)
+            .attr('x', 0 - (chartHeight / 2 + margin.top))
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle')
+            .text('Sales');
+
+    </script>
+</body>
+</html>
